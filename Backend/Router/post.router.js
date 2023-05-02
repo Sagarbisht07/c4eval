@@ -31,16 +31,35 @@ router.patch("/update/:id", async (req, res) => {
 });
 
 router.delete("/delete/:id", async (req, res) => {
-    const { id } = req.params;
-    const { autherId } = req.body;
-    const post = await PostModel.find({ autherId });
-  
-    if (!post) {
-      return res.status(400).send({ msg: "Post not found for this user" });
-    }
-    await PostModel.findByIdAndDelete(id);
-    res.send({ msg: "Post has been deleted" });
-  });
-  
+  const { id } = req.params;
+  const { autherId } = req.body;
+  const post = await PostModel.find({ autherId });
+
+  if (!post) {
+    return res.status(400).send({ msg: "Post not found for this user" });
+  }
+  await PostModel.findByIdAndDelete(id);
+  res.send({ msg: "Post has been deleted" });
+});
+
+router.get("/filter", async (req, res) => {
+  let { device1, device2 } = req.query;
+
+  if (device1 && device2) {
+    let userdata = await PostModel.find({
+      $or: [{ device: device1 }, { device: device2 }],
+    });
+    res.send(userdata);
+  } else if (device1) {
+    let userdata = await PostModel.find({ device: device1 });
+    res.send(userdata);
+  } else if (device2) {
+    let userdata = await PostModel.find({ device: device2 });
+    res.send(userdata);
+  } else {
+    let userdata = await PostModel.find();
+    res.send(userdata);
+  }
+});
 
 module.exports = router;
